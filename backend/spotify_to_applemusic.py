@@ -6,6 +6,7 @@ from groupy.client import Client
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from applemusicpy import AppleMusic
+import os
 
 
 def get_spotify_playlist_id(sp, playlist_name):
@@ -15,7 +16,6 @@ def get_spotify_playlist_id(sp, playlist_name):
 
     # Search for playlists by name
     playlists = sp.user_playlists(user=user_id)
-    playlists
 
     # Iterate through the playlists to find the matching playlist
     for playlist in playlists["items"]:
@@ -31,9 +31,13 @@ def fetch_spotify_playlist_tracks(sp, playlist_name):
     # Get playlist id
     playlist_id = get_spotify_playlist_id(sp, playlist_name)
 
-    # Fetch the tracks from the Spotify playlist
-    playlist_tracks = sp.playlist_tracks(playlist_id=playlist_id)
-    return playlist_tracks["items"]
+    if playlist_id is not None:
+        # Fetch the tracks from the Spotify playlist
+        playlist_tracks = sp.playlist_tracks(playlist_id=playlist_id)
+        return playlist_tracks["items"]
+    else:
+        print("Playlist not found.")
+        return None
 
 
 def search_apple_music(amp, track_name):
@@ -63,27 +67,36 @@ def create_apple_music_playlist(apple_music_tracks):
 
 def main(spotify_playlist_name):
     # Spotify/Spotipy Clients
-    spotify_client = SpotifyClient("../Auth-Text-Files/SpotifyAuth.txt")
-    sp = Spotify(
-        auth_manager=SpotifyOAuth(
-            client_id=spotify_client.client_id,
-            client_secret=spotify_client.client_secret,
-            redirect_uri=spotify_client.redirect_uri,
-            scope=spotify_client.scope,
-        )
-    )
+    # spotify_file_path = os.path.abspath("backend/Auth-Text-Files/SpotifyAuth.txt")
+    # spotify_client = SpotifyClient(spotify_file_path)
+    # sp = Spotify(
+    #     auth_manager=SpotifyOAuth(
+    #         client_id=spotify_client.client_id,
+    #         client_secret=spotify_client.client_secret,
+    #         redirect_uri=spotify_client.redirect_uri,
+    #         scope=spotify_client.scope,
+    #     )
+    # )
 
-    # Fetch tracks from Spotify playlist
-    spotify_tracks = fetch_spotify_playlist_tracks(sp, spotify_playlist_name)
+    # # Fetch tracks from Spotify playlist
+    # spotify_tracks = fetch_spotify_playlist_tracks(sp, spotify_playlist_name)
 
     # Apple Music/ applemusicpy Clients
-    apple_client = AppleClient("../Auth-Text-Files/AppleMusicAuth.txt")
-    amp = AppleMusic(
-        secret_key=apple_client.secret_key,
-        key_id=apple_client.key_id,
-        team_id=apple_client.team_id,
+    apple_file_paths = {
+        "auth": os.path.abspath("backend/Auth-Text-Files/AppleMusicAuth.txt"),
+        "secret": os.path.abspath("backend/Auth-Text-Files/AppleMusicSecretKey.txt"),
+    }
+    apple_client = AppleClient(apple_file_paths["auth"], apple_file_paths["secret"])
+    print(apple_client.key_id)
+    print(apple_client.team_id)
+    print(apple_client.secret_key)
+    token = apple_client.generate_token()
+    print(
+        apple_client.search_apple_music(
+            token,
+            "You'll Never Find Another Love Like Mine - Kenny Summit, Frankie Knuckles %26 Eric Kupper Remix",
+        )
     )
-    convert_to_apple_music(amp, spotify_tracks)
 
 
 if __name__ == "__main__":

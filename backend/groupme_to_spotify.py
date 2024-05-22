@@ -1,7 +1,7 @@
 import re
 import sys
 import os
-from backend.spotifyclient import SpotifyClient
+from spotifyclient import SpotifyClient
 from datetime import datetime, timedelta, timezone
 from groupy.client import Client
 from spotipy import Spotify

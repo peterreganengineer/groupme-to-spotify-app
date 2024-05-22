@@ -1,22 +1,31 @@
+import time
+import jwt
+import requests
+
+
 class AppleClient:
-    REQUIRED_VARIABLES = {"team_id", "key_id"}
-    SECRET_KEY = """-----BEGIN PRIVATE KEY-----
-MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgeHszMFN1GvYxlqf7
-YljB72wYKB7sJCb7m8353X231Z+gCgYIKoZIzj0DAQehRANCAASQtzqRK1vJRD41
-gNSG0xd/1s7vcza/t55gDUFMvWIwB8mgJqKDJmXJrv5Z1NU4lylPOiHypPEe9Vwl
-PnBJDyIt
------END PRIVATE KEY-----"""
+    """Client for communicating with apple apis"""
 
-    def __init__(self, file_path):
-        self.team_id = None
+    REQUIRED_VARIABLES = {"key_id", "team_id"}
+
+    def __init__(self, ids_file, private_key_file):
         self.key_id = None
-        self.secret_key = self.SECRET_KEY
-        self.read_auth_text_file(file_path)
+        self.team_id = None
+        self.read_auth_text_file(ids_file, private_key_file)
 
-    def read_auth_text_file(self, file_path):
+    def read_auth_text_file(self, ids_file, private_key_file):
+        """_summary_
+
+        Args:
+            ids_file (string): file path to the key_id and team_id
+            private_key_file (string): file path to the apple music secret key
+
+        """
+        with open(private_key_file, "r") as f:
+            self.secret_key = f.read()
 
         # Open txt file
-        with open(file_path, "r") as file:
+        with open(ids_file, "r") as file:
             lines = file.readlines()
 
         # Read each line in txt file
@@ -36,3 +45,44 @@ PnBJDyIt
             raise ValueError(
                 f"Missing required variables: {', '.join(missing_variables)}"
             )
+
+    def generate_token(self):
+        """generates jwt token to be used fo apple music api calls
+
+        Returns:
+            token: jwt token
+        """
+        headers = {"kid": self.key_id, "typ": "JWT", "alg": "ES256"}
+
+        payload = {
+            "iss": self.team_id,
+            "iat": int(time.time()),
+            "exp": int(time.time()) + 3600,  # Token is valid for 1 hour
+        }
+
+        token = jwt.encode(payload, self.secret_key, algorithm="ES256", headers=headers)
+        return token
+
+    def search_apple_music(self, jwt_token, term, limit=1):
+        """searchs for a single song in apple music
+
+        Args:
+            jwt_token (string): the jwt auth token (generated from generate_token)
+            term (string): the song title to search for
+            limit (int, optional): number of results to return from search. Defaults to 1.
+
+        Returns:
+            response (json): the json body response of the apple music search request
+        """
+        url = f"https://api.music.apple.com/v1/catalog/us/search"
+        headers = {
+            "Authorization": f"Bearer {jwt_token}",
+        }
+        params = {
+            "term": term,
+            "limit": limit,
+            "types": "songs",
+        }
+
+        response = requests.get(url, headers=headers, params=params)
+        return response.json()
