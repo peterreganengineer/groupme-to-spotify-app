@@ -1,5 +1,0 @@
-client_id=5708c552638b447994c6a70be16761b7
-client_secret=d1a5207f018e4a78b0f4de54638be840
-redirect_uri=http://localhost:8888/callback
-username=1264276218
-scope=playlist-modify-public
