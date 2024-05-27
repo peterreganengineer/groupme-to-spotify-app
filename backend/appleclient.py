@@ -86,3 +86,28 @@ class AppleClient:
 
         response = requests.get(url, headers=headers, params=params)
         return response.json()
+
+    def create_library_playlist(self, jwt_token, music_user_token, name, description):
+        """create a single library playlist
+
+        Args:
+            jwt_token (string): the jwt auth token (generated from generate_token)
+            term (dict): A dictionary that includes strings for the name and description of the new playlist.
+
+        Returns:
+            response (json): the json body response of the apple music playlist creation
+        """
+        url = f"https://api.music.apple.com/v1/me/library/playlists"
+        headers = {
+            "Authorization": f"Bearer {jwt_token}",
+            "Music-User-Token": music_user_token,
+        }
+        params = {
+            "attributes": {
+                "description": {"standard": description},
+                "name": name,
+            }
+        }
+
+        response = requests.post(url, headers=headers, params=params)
+        return response.json()

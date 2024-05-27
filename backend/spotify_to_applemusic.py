@@ -65,7 +65,7 @@ def create_apple_music_playlist(apple_music_tracks):
     pass
 
 
-def main(spotify_playlist_name):
+def main():
     # Spotify/Spotipy Clients
     # spotify_file_path = os.path.abspath("backend/Auth-Text-Files/SpotifyAuth.txt")
     # spotify_client = SpotifyClient(spotify_file_path)
@@ -87,18 +87,11 @@ def main(spotify_playlist_name):
         "secret": os.path.abspath("backend/Auth-Text-Files/AppleMusicSecretKey.txt"),
     }
     apple_client = AppleClient(apple_file_paths["auth"], apple_file_paths["secret"])
-    print(apple_client.key_id)
-    print(apple_client.team_id)
-    print(apple_client.secret_key)
+
     token = apple_client.generate_token()
-    print(
-        apple_client.search_apple_music(
-            token,
-            "You'll Never Find Another Love Like Mine - Kenny Summit, Frankie Knuckles %26 Eric Kupper Remix",
-        )
-    )
+    print(token)
+    apple_client.create_library_playlist(token, "TOKEN", "TESTTESTTEST", "TESTTESTTEST")
 
 
 if __name__ == "__main__":
-    spotify_playlist_name = "Test Playlist 4"
-    main(spotify_playlist_name)
+    main()
