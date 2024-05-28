@@ -6,8 +6,8 @@ app = Flask(__name__)
 CORS(app)
 
 # file paths for authentication
-IDS_PATH = "backend/Auth-Text-Files/AppleMusicAuth.txt"
-PRIVATE_KEY_PATH = "backend/Auth-Text-Files/AppleMusicSecretKey.txt"
+IDS_PATH = "../backend/Auth-Text-Files/AppleMusicAuth.txt"
+PRIVATE_KEY_PATH = "../backend/Auth-Text-Files/AppleMusicSecretKey.txt"
 
 
 @app.route("/developer-token")

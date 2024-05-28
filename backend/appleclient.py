@@ -14,7 +14,7 @@ class AppleClient:
         self.read_auth_text_file(ids_file, private_key_file)
 
     def read_auth_text_file(self, ids_file, private_key_file):
-        """_summary_
+        """read auth text files to auth with apple apis
 
         Args:
             ids_file (string): file path to the key_id and team_id
