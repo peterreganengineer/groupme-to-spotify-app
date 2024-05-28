@@ -93,7 +93,16 @@ class SpotifyClient:
         if playlist_id is not None:
             # Fetch the tracks from the Spotify playlist
             playlist_tracks = sp.playlist_tracks(playlist_id=playlist_id)
-            return playlist_tracks["items"]
+            playlist_tracks = playlist_tracks["items"]
+            tracks_final = [
+                {
+                    "name": track["track"]["name"],
+                    "artists": [artist["name"] for artist in track["track"]["artists"]],
+                }
+                for track in playlist_tracks
+            ]
+
+            return tracks_final
         else:
             print("Playlist not found.")
             return None
