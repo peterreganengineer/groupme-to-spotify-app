@@ -1,4 +1,10 @@
+from spotipy import Spotify
+from spotipy.oauth2 import SpotifyOAuth
+
+
 class SpotifyClient:
+    """Client for communicating with spotify apis"""
+
     REQUIRED_VARIABLES = {
         "client_id",
         "client_secret",
@@ -16,7 +22,14 @@ class SpotifyClient:
         self.read_auth_text_file(file_path)
 
     def read_auth_text_file(self, file_path):
+        """read spotify auth text files to call spotify apis
 
+        Args:
+            file_path (string): location of the spotify auth files
+
+        Raises:
+            ValueError: raises error if the file is missing one of the required variables above
+        """
         # Open txt file
         with open(file_path, "r") as file:
             lines = file.readlines()
@@ -38,3 +51,49 @@ class SpotifyClient:
             raise ValueError(
                 f"Missing required variables: {', '.join(missing_variables)}"
             )
+
+    def get_spotify_playlist_id(self, sp, playlist_name):
+        """get a spotify playlist id given its name
+
+        Args:
+            sp (spotipy): spotipy python library instance
+            playlist_name (string): name of playlist to fetch id from
+
+        Returns:
+            string: the id of the playlist
+        """
+        # Get the current user's profile information
+        user_id = sp.me()["id"]
+
+        # Search for playlists by name
+        playlists = sp.user_playlists(user=user_id)
+
+        # Iterate through the playlists to find the matching playlist
+        for playlist in playlists["items"]:
+            if playlist["name"] == playlist_name:
+                return playlist["id"]
+            else:
+                print("Playlist not found.")
+                return None
+
+    def fetch_spotify_playlist_tracks(self, sp, playlist_name):
+        """fetch all tracks from a spotify playlist
+
+        Args:
+            sp (spotipy): spotipy python library instance
+            playlist_name (string): name of playlist to fetch tracks from
+
+        Returns:
+            list: list containing all tracks from given playlist
+        """
+
+        # Get playlist id
+        playlist_id = self.get_spotify_playlist_id(sp, playlist_name)
+
+        if playlist_id is not None:
+            # Fetch the tracks from the Spotify playlist
+            playlist_tracks = sp.playlist_tracks(playlist_id=playlist_id)
+            return playlist_tracks["items"]
+        else:
+            print("Playlist not found.")
+            return None
