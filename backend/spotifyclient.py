@@ -1,3 +1,5 @@
+import sys
+from flask import app
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -66,15 +68,18 @@ class SpotifyClient:
         user_id = sp.me()["id"]
 
         # Search for playlists by name
-        playlists = sp.user_playlists(user=user_id)
+        playlists = sp.user_playlists(user=user_id, limit=50, offset=0)
 
         # Iterate through the playlists to find the matching playlist
+
+        print(playlist_name, file=sys.stderr)
+
         for playlist in playlists["items"]:
+            print(playlist["name"])
             if playlist["name"] == playlist_name:
                 return playlist["id"]
-            else:
-                print("Playlist not found.")
-                return None
+
+        return None
 
     def fetch_spotify_playlist_tracks(self, sp, playlist_name):
         """fetch all tracks from a spotify playlist
