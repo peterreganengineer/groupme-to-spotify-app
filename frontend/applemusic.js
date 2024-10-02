@@ -78,18 +78,9 @@ async function spotifyToApplePlaylist() {
     let spotifyTracks = await fetchSpotifyTracks(spotifyPlaylistName);
     const totalSongs = spotifyTracks.length;
     const limit = 5;
-    let appleTracks = [];
-    for (let processed = 0; processed < totalSongs; processed += limit) {
-      let start = processed + 1;
-      let end = Math.min(processed + limit, totalSongs);
-      console.log(`processing batch: ${start}-${end}`);
-      appleTracks.push(
-        await processTracks(spotifyTracks.slice(start, end), developerToken)
-      );
-      setTimeout(() => {
-        console.log("Loading...");
-      }, 2000);
-    }
+    let appleTracks = [{}];
+
+    // create playlist
     const response = await createPlaylistRequest(
       applePlaylistName,
       developerToken,
@@ -98,19 +89,29 @@ async function spotifyToApplePlaylist() {
 
     const applePlaylist = await response.json();
     const applePlaylistId = applePlaylist.data[0].id;
-    await addTracksToPlaylist(
-      applePlaylistId,
-      appleTracks,
-      developerToken,
-      musicKitToken
-    );
 
-    if (spotifyTracks.status === 201) {
-      alert(`Playlist '${applePlaylistName}' created successfully!`);
-    } else {
-      const errorMessage = await response.json();
-      alert(`Failed to create playlist: ${errorMessage.errors[0].detail}`);
+    // process songs searches and adding to playlist in batches
+    for (let processed = 0; processed < totalSongs; processed += limit) {
+      let start = processed;
+      let end = Math.min(processed + limit, totalSongs);
+      console.log(`processing batch: ${start}-${end}`);
+
+      // search for song in apple music
+      const appleTracks = await processTracks(spotifyTracks.slice(start, end), developerToken)
+      setTimeout(() => {
+        console.log("Loading...");
+      }, 2000);
+
+      // add tracks to apple music playlist
+      await addTracksToPlaylist(
+        applePlaylistId,
+        appleTracks,
+        developerToken,
+        musicKitToken
+      );
     }
+    alert(`Playlist '${applePlaylistName}' created successfully!`);
+
   } catch (error) {
     console.error("Error:", error);
     alert("An error occurred. Check the console for details.");
@@ -130,14 +131,14 @@ async function processTracks(spotifyTracks, developerToken) {
       searchSongRequest(developerToken, track.name + " " + track.artists[0])
     )
   );
-  console.log(appleTrackIds)
-  const unwoundTracks = appleTrackIds.map(item => item.results.songs.data[0]);
+  const unwoundTracks = appleTrackIds.map(item => item.results?.songs?.data[0]);
   // Create a new list with just the id and type fields
-  console.log(unwoundTracks)
-  const result = unwoundTracks.map((item) => ({
+  const filteredTracks = unwoundTracks.filter(item => item !== undefined)
+  const result = filteredTracks.map((item) => ({
     id: item.id,
     type: item.type,
   }));
+  console.log(result)
   return result;
 }
 
