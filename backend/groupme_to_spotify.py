@@ -1,7 +1,8 @@
 import re
 import sys
 import os
-from backend.spotifyclient import SpotifyClient
+import time
+from spotifyclient import SpotifyClient
 from datetime import datetime, timedelta, timezone
 from groupy.client import Client
 from spotipy import Spotify
@@ -11,8 +12,8 @@ from spotipy.oauth2 import SpotifyOAuth
 def get_all_spotify_track_ids(messages):
     spotify_track_ids = []
     for message in messages:
-        if message.text:
-            urls = re.findall(r"(https://open.spotify.com/track/[\w\d]+)", message.text)
+        if message:
+            urls = re.findall(r"(https://open.spotify.com/track/[\w\d]+)", message)
             for url in urls:
                 track_id = url.split("/")[-1]
                 spotify_track_ids.append(track_id)
@@ -68,17 +69,38 @@ def main(playlist_name, start_date, end_date):
     end_datetime = datetime.strptime(end_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
     # Filter messages to only include those within the specified date range
-    messages = group.messages.list().autopage()
-    relevant_messages = [
-        message
-        for message in messages
-        if start_datetime
-        <= message.created_at.replace(tzinfo=timezone.utc)
-        <= end_datetime
-    ]
+    messages = []
+    page = group.messages.list(limit=1)
+    start_message = group.messages.list()[0]
+
+    outer_loop_broken = False
+    while end_datetime <= start_message.created_at.replace(tzinfo=timezone.utc):
+        page = group.messages.list(before_id=start_message.id, limit=20)
+        start_message = page[19]
+        for message in page:
+            if end_datetime >= message.created_at.replace(tzinfo=timezone.utc):
+                start_message = message
+                outer_loop_broken = True
+                break
+            print(message.created_at)
+        if outer_loop_broken:
+            break
+        time.sleep(0.1)
+    print(start_message.created_at)
+    print(start_message.text)
+
+    while start_datetime <= start_message.created_at.replace(tzinfo=timezone.utc):
+        page = group.messages.list(before_id=start_message.id, limit=20)
+        start_message = page[19]
+        for message in page:
+            messages.append(message.text)
+        print(start_message.created_at)
+        print(start_message.text)
+        time.sleep(0.1)
+    print(messages)
 
     # Get track ids from all messages
-    track_ids = get_all_spotify_track_ids(relevant_messages)
+    track_ids = get_all_spotify_track_ids(messages)
 
     # Create playlist
     playlist_name = playlist_name
