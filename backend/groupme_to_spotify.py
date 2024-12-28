@@ -2,7 +2,7 @@ import re
 import sys
 import os
 import time
-from spotifyclient import SpotifyClient
+from backend.spotify_client import SpotifyClient
 from datetime import datetime, timedelta, timezone
 from groupy.client import Client
 from spotipy import Spotify
@@ -32,14 +32,38 @@ def create_spotify_playlist(sp, playlist_name, spotify_track_ids):
     user_id = sp.me()["id"]
 
     # Create empty playlist
-    playlist = sp.user_playlist_create(user_id, playlist_name, public=True)
+    # playlist = sp.user_playlist_create(user_id, playlist_name, public=True)
 
     # Get unique ids only
     unique_ids = get_unique_spotify_track_ids(spotify_track_ids)
+    print(len(unique_ids))
+
+    results = sp.playlist_items(
+        "200Vt1KP4GTc6Y1GQplTbu",
+        None,
+        1,
+    )
+    total = results["total"]
+    track_ids = []
+    for x in range(0, total, 100):
+        results = sp.playlist_items("200Vt1KP4GTc6Y1GQplTbu", None, 100, x)
+        tracks = results["items"]
+        track_ids = track_ids + [
+            item["track"]["id"] for item in tracks if item["track"]
+        ]
+    print(len(track_ids))
+
+    # Concatenate the lists
+    merged_list = unique_ids - set(track_ids)
+
+    # Remove duplicates
+    merged_list = set(merged_list)
+    print(len(merged_list))
 
     # Loop to add each track one by one to playlist
-    for track_id in unique_ids:
-        sp.playlist_add_items(playlist["id"], [track_id])
+    for track_id in merged_list:
+        sp.playlist_add_items("200Vt1KP4GTc6Y1GQplTbu", [track_id])
+        time.sleep(0.2)
 
 
 def main(playlist_name, start_date, end_date):
@@ -82,12 +106,10 @@ def main(playlist_name, start_date, end_date):
                 start_message = message
                 outer_loop_broken = True
                 break
-            print(message.created_at)
         if outer_loop_broken:
             break
-        time.sleep(0.1)
-    print(start_message.created_at)
-    print(start_message.text)
+        print(start_message.created_at, flush=True)
+        print(start_message.text, flush=True)
 
     while start_datetime <= start_message.created_at.replace(tzinfo=timezone.utc):
         page = group.messages.list(before_id=start_message.id, limit=20)
@@ -96,9 +118,7 @@ def main(playlist_name, start_date, end_date):
             messages.append(message.text)
         print(start_message.created_at)
         print(start_message.text)
-        time.sleep(0.1)
-    print(messages)
-
+        time.sleep(0.5)
     # Get track ids from all messages
     track_ids = get_all_spotify_track_ids(messages)
 
