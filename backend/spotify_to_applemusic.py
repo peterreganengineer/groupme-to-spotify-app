@@ -1,5 +1,5 @@
 import json
-from spotifyclient import SpotifyClient
+from backend.spotify_client import SpotifyClient
 from appleclient import AppleClient
 from datetime import datetime, timedelta, timezone
 from groupy.client import Client
