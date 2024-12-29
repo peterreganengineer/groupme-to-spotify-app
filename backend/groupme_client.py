@@ -69,16 +69,32 @@ class groupmeClient:
 
         return response["response"]
 
-    def get_group_messages(self, limit):
-        """
-        Fetches messages for a GroupMe group using the GroupMe API.
+    def get_group_messages(
+        self, limit=20, before_id=None, since_id=None, after_id=None
+    ):
+        """get groupme messages based on passed params
 
-        :param access_token: Your GroupMe API access token.
-        :param group_id: The ID of the GroupMe group.
-        :return: Messages or an error message.
+        Args:
+            limit (integer): Number of messages returned. Default is 20. Max is 100.
+            before_id (string): Returns messages created before the given message ID
+            since_id (string): Returns most recent messages created after the given message ID
+            after_id (string): Returns messages created immediately after the given message ID
+
+
+        Returns:
+            (dict): python dictonary containing messages list
         """
         url = f"https://api.groupme.com/v3/groups/{self.group_id}/messages"
-        params = {"token": self.token, "limit": limit}
+        params = {"token": self.token}
+
+        if limit:
+            params["limit"] = limit
+        if before_id:
+            params["before_id"] = before_id
+        if since_id:
+            params["since_id"] = since_id
+        if after_id:
+            params["after_id"] = after_id
 
         response = self.get_request(url, params)
 
