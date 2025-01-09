@@ -1,5 +1,4 @@
 import sys
-from flask import app
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
