@@ -1,49 +1,80 @@
-import re
 import sys
-import os
-from spotifyclient import SpotifyClient
-from datetime import datetime, timedelta, timezone
-from groupy.client import Client
+import time
+import mysql.connector
+from spotify_client import SpotifyClient
+from datetime import datetime, timezone
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
 
-def get_all_spotify_track_ids(messages):
-    spotify_track_ids = []
-    for message in messages:
-        if message.text:
-            urls = re.findall(r"(https://open.spotify.com/track/[\w\d]+)", message.text)
-            for url in urls:
-                track_id = url.split("/")[-1]
-                spotify_track_ids.append(track_id)
-    return spotify_track_ids
+def get_all_spotify_song_ids(mydb, start_date, end_date):
+    """Query database holding groupme messages to get all spotify songs based on a data range.
+
+    Args:
+        mydb (mysql database): mysql database to connect to
+        start_date (date): start date range format YYYY-MM-DD
+        end_date (date): end date range format YYYY-MM-DD
+
+    Returns:
+        set: set of unqiue spotify song ids
+    """
+    # Convert start and end dates to datetime objects
+    start_datetime = datetime.strptime(start_date, "%Y-%m-%d").replace(
+        tzinfo=timezone.utc
+    )
+    end_datetime = datetime.strptime(end_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+
+    mycursor = mydb.cursor()
+
+    # Query for all song links
+    get_spotify_songs_query = "SELECT text FROM groupme.message WHERE is_song AND created_at < %s AND created_at > %s"
+
+    mycursor.execute(
+        get_spotify_songs_query,
+        (end_datetime, start_datetime),
+    )
+    spotify_song_urls = mycursor.fetchall()
+
+    # Set so unique ids only to avoid dupes added to playlist
+    spotify_song_urls = [song[0] for song in spotify_song_urls]
+    print(spotify_song_urls)
+    # Get songIds from spotify urls
+    spotify_song_ids = []
+    for url in spotify_song_urls:
+        id = url.split("/")[-1].split("?")[0]
+        spotify_song_ids.append(id)
+
+    return set(spotify_song_ids)
 
 
-def get_unique_spotify_track_ids(spotify_track_ids):
+def create_spotify_playlist(sp, playlist_name, spotify_song_ids):
+    """Create a spotify playlist given a playlist name and a list of valid spotify song ids.
 
-    # Sets do not allow duplicate elements, this automatically removes any duplicate ID
-    unique_ids = set(spotify_track_ids)
-    return unique_ids
-
-
-def create_spotify_playlist(sp, playlist_name, spotify_track_ids):
+    Args:
+        sp (spotipy): _description_
+        playlist_name (string): playlist name
+        spotify_song_ids (list): list of valid spotfiy ids ex: 1aUnILXf9hIRbCqQUpqihD
+    """
 
     user_id = sp.me()["id"]
 
     # Create empty playlist
     playlist = sp.user_playlist_create(user_id, playlist_name, public=True)
+    print("Playlist Created: " + playlist["name"])
 
-    # Get unique ids only
-    unique_ids = get_unique_spotify_track_ids(spotify_track_ids)
-
-    # Loop to add each track one by one to playlist
-    for track_id in unique_ids:
-        sp.playlist_add_items(playlist["id"], [track_id])
+    # Loop to add each song one by one to playlist
+    for song_id in spotify_song_ids:
+        add_song = sp.playlist_add_items(playlist["id"], [song_id])
+        if "error" in add_song:
+            time.sleep(10)
+            add_song = sp.playlist_add_items(playlist["id"], [song_id])
+        print("Added Song: " + song_id)
 
 
 def main(playlist_name, start_date, end_date):
-    # Spotify/Spotipy Clients
-    file_path = os.path.abspath("backend/Auth-Text-Files/SpotifyAuth.txt")
+
+    # Spotify/Spotipy Client
+    file_path = "backend/Auth-Text-Files/SpotifyAuth.txt"
     spotify_client = SpotifyClient(file_path)
     sp = Spotify(
         auth_manager=SpotifyOAuth(
@@ -54,35 +85,22 @@ def main(playlist_name, start_date, end_date):
         )
     )
 
-    # Groupme Client
-    GROUPME_TOKEN = "4We4OiSLGXghh2ooSMUkFfVaB6AdXJG8sE98VWs9"
-    groupme_client = Client.from_token(GROUPME_TOKEN)
-    group = groupme_client.groups.get(
-        "86830992"
-    )  # Replace 'your_group_id' with the actual group ID
-
-    # Convert start and end dates to datetime objects
-    start_datetime = datetime.strptime(start_date, "%Y-%m-%d").replace(
-        tzinfo=timezone.utc
+    # Set up the connection to database
+    mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="n4LB6q9Xozu9XqdP8vPF",
+        database="groupme",
     )
-    end_datetime = datetime.strptime(end_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
-    # Filter messages to only include those within the specified date range
-    messages = group.messages.list().autopage()
-    relevant_messages = [
-        message
-        for message in messages
-        if start_datetime
-        <= message.created_at.replace(tzinfo=timezone.utc)
-        <= end_datetime
-    ]
+    if mydb.is_connected():
+        print("Connected to groupme db")
 
-    # Get track ids from all messages
-    track_ids = get_all_spotify_track_ids(relevant_messages)
+    # Function call to query and return unique list of spotify songs
+    spotify_song_ids = get_all_spotify_song_ids(mydb, start_date, end_date)
 
-    # Create playlist
-    playlist_name = playlist_name
-    create_spotify_playlist(sp, playlist_name, track_ids)
+    # Function call to create playlist with spotify songs
+    create_spotify_playlist(sp, playlist_name, spotify_song_ids)
 
 
 if __name__ == "__main__":
