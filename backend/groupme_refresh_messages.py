@@ -13,13 +13,12 @@ if mydb.is_connected():
     print("Connected to groupme db")
 
 
-get_earliest_message_query = (
-    "SELECT message_id FROM groupme.message ORDER BY created_at ASC LIMIT 1"
-)
+# get_earliest_message_query = (
+#     "SELECT message_id FROM groupme.message ORDER BY created_at ASC LIMIT 1"
+# )
 
-
-# mycursor.execute(get_earliest_message_query)
-# earliest_message_id = mycursor.fetchone()[0]
+# # mycursor.execute(get_earliest_message_query)
+# # earliest_message_id = mycursor.fetchone()[0]
 
 
 add_message_query = "INSERT INTO message (message_id,group_id,user_id,text,reaction_count,created_at,is_song) VALUES (%s,%s,%s,%s,%s,%s,%s)"
@@ -148,4 +147,6 @@ def add_messages_to_db(messages, mycursor):
 
 
 fetch_and_add_latest(mydb)
+# uncomment to fetch all instead of latest
+# fetch_and_add_all(mydb)
 mydb.close()
