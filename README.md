@@ -210,9 +210,6 @@ python3 groupme_refresh_messages.py
 
 This is a personal project. For improvements or bug reports, please open an issue or submit a pull request.
 
-## License
-
-This project is provided as-is. See LICENSE file for details.
 
 ## Support
 
