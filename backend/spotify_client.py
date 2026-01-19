@@ -1,6 +1,11 @@
 import sys
+import os
+from dotenv import load_dotenv
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class SpotifyClient:
@@ -14,43 +19,26 @@ class SpotifyClient:
         "scope",
     }
 
-    def __init__(self, file_path):
-        self.client_id = None
-        self.client_secret = None
-        self.redirect_uri = None
-        self.username = None
-        self.scope = None
-        self.read_auth_text_file(file_path)
+    def __init__(self):
+        self.client_id = os.getenv("SPOTIFY_CLIENT_ID")
+        self.client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+        self.redirect_uri = os.getenv("SPOTIFY_REDIRECT_URI")
+        self.username = os.getenv("SPOTIFY_USERNAME")
+        self.scope = os.getenv("SPOTIFY_SCOPE")
+        self._validate_required_variables()
 
-    def read_auth_text_file(self, file_path):
-        """read spotify auth text files to call spotify apis
-
-        Args:
-            file_path (string): location of the spotify auth files
+    def _validate_required_variables(self):
+        """Validate that all required environment variables are set.
 
         Raises:
-            ValueError: raises error if the file is missing one of the required variables above
+            ValueError: raises error if any required variable is missing
         """
-        # Open txt file
-        with open(file_path, "r") as file:
-            lines = file.readlines()
-
-        # Read each line in txt file
-        for line in lines:
-            parts = line.strip().split("=")
-            if len(parts) == 2:
-                var_name = parts[0].strip()
-                var_value = parts[1].strip()
-                if var_name in self.REQUIRED_VARIABLES:
-                    setattr(self, var_name, var_value)
-
-        # Check if all required variables are present
         missing_variables = [
             var for var in self.REQUIRED_VARIABLES if getattr(self, var) is None
         ]
         if missing_variables:
             raise ValueError(
-                f"Missing required variables: {', '.join(missing_variables)}"
+                f"Missing required environment variables: {', '.join(missing_variables)}"
             )
 
     def get_spotify_playlist_id(self, sp, playlist_name):

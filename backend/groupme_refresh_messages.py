@@ -1,12 +1,20 @@
 from datetime import datetime
 import re
 import time
+import os
+from dotenv import load_dotenv
 from groupme_client import groupmeClient
 import mysql.connector
 
+# Load environment variables from .env file
+load_dotenv()
+
 # Set up the connection
 mydb = mysql.connector.connect(
-    host="localhost", user="root", password="n4LB6q9Xozu9XqdP8vPF", database="groupme"
+    host=os.getenv("DB_HOST"), 
+    user=os.getenv("DB_USER"), 
+    password=os.getenv("DB_PASSWORD"), 
+    database=os.getenv("DB_NAME")
 )
 
 if mydb.is_connected():
@@ -23,7 +31,7 @@ if mydb.is_connected():
 
 add_message_query = "INSERT INTO message (message_id,group_id,user_id,text,reaction_count,created_at,is_song) VALUES (%s,%s,%s,%s,%s,%s,%s)"
 
-gc = groupmeClient("backend/Auth-Text-Files/GroupmeAuth.txt")
+gc = groupmeClient()
 
 totalMessages = gc.get_group_message_count()
 

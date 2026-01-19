@@ -1,36 +1,31 @@
+import os
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class groupmeClient:
     REQUIRED_VARIABLES = {"token", "group_id"}
 
-    def __init__(self, file_path):
-        self.token = None
-        self.group_id = None
-        self.read_auth_text_file(file_path)
+    def __init__(self):
+        self.token = os.getenv("GROUPME_TOKEN")
+        self.group_id = os.getenv("GROUPME_GROUP_ID")
+        self._validate_required_variables()
 
-    def read_auth_text_file(self, file_path):
+    def _validate_required_variables(self):
+        """Validate that all required environment variables are set.
 
-        # Open txt file
-        with open(file_path, "r") as file:
-            lines = file.readlines()
-
-        # Read each line in txt file
-        for line in lines:
-            parts = line.strip().split("=")
-            if len(parts) == 2:
-                var_name = parts[0].strip()
-                var_value = parts[1].strip()
-                if var_name in self.REQUIRED_VARIABLES:
-                    setattr(self, var_name, var_value)
-
-        # Check if all required variables are present
+        Raises:
+            ValueError: raises error if any required variable is missing
+        """
         missing_variables = [
             var for var in self.REQUIRED_VARIABLES if getattr(self, var) is None
         ]
         if missing_variables:
             raise ValueError(
-                f"Missing required variables: {', '.join(missing_variables)}"
+                f"Missing required environment variables: {', '.join(missing_variables)}"
             )
 
     def get_group_message_count(self):
