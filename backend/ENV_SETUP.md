@@ -6,7 +6,7 @@ This project uses environment variables to manage sensitive credentials like API
 
 1. Install the required dependencies:
 ```bash
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 ## Environment Variables Setup
@@ -26,7 +26,7 @@ Edit the `.env` file with your actual credentials:
 # Spotify Configuration
 SPOTIFY_CLIENT_ID=your_spotify_client_id
 SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-SPOTIFY_REDIRECT_URI=http://localhost:8888/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8888/callback
 SPOTIFY_USERNAME=your_spotify_username
 SPOTIFY_SCOPE=playlist-modify-public
 
@@ -63,9 +63,9 @@ DB_NAME=groupme
 Once your `.env` file is set up, you can run the scripts:
 
 ```bash
-python groupme_refresh_messages.py
-python groupme_refresh_users.py
-python groupme_to_spotify.py <playlist_name> <start_date> <end_date>
+python3 groupme_refresh_messages.py
+python3 groupme_refresh_users.py
+python3 groupme_to_spotify.py <playlist_name> <start_date> <end_date>
 ```
 
 The environment variables will be automatically loaded from your `.env` file.
