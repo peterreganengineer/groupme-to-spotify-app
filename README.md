@@ -1,4 +1,4 @@
-# Peter Regan Group Me To Spotify Music App 🎵
+# Peter Regan GroupMe To Spotify Music App 🎵
 
 A Python-based application that integrates GroupMe messaging with Spotify playlists. This project fetches music links shared in GroupMe conversations and automatically creates Spotify playlists based on date ranges.
 
