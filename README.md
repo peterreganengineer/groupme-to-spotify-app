@@ -121,26 +121,6 @@ python3 groupme_to_spotify.py "Playlist Name" "2024-01-01" "2024-12-31"
 - `start_date`: Start date (YYYY-MM-DD format)
 - `end_date`: End date (YYYY-MM-DD format)
 
-## Project Structure
-
-```
-peter-regan-music/
-├── backend/
-│   ├── .env                          # Local environment variables (git-ignored)
-│   ├── .env.example                  # Template for environment variables
-│   ├── requirements.txt              # Python dependencies
-│   ├── spotify_client.py             # Spotify API client
-│   ├── groupme_client.py             # GroupMe API client
-│   ├── groupme_refresh_messages.py   # Fetch GroupMe messages
-│   ├── groupme_refresh_users.py      # Fetch GroupMe users
-│   └── groupme_to_spotify.py         # Create Spotify playlists
-├── index.html                        # Frontend (optional)
-├── package.json                      # Node.js dependencies (optional)
-├── .gitignore                        # Git ignore rules
-├── README.md                         # This file
-└── ENV_SETUP.md                      # Detailed environment setup guide
-```
-
 ## Security
 
 ⚠️ **Important Security Notes:**
