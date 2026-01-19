@@ -1,9 +1,17 @@
 from groupme_client import groupmeClient
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Set up the connection
 mydb = mysql.connector.connect(
-    host="localhost", user="root", password="n4LB6q9Xozu9XqdP8vPF", database="groupme"
+    host=os.getenv("DB_HOST"), 
+    user=os.getenv("DB_USER"), 
+    password=os.getenv("DB_PASSWORD"), 
+    database=os.getenv("DB_NAME")
 )
 
 if mydb.is_connected():
@@ -18,7 +26,7 @@ update_user_query = "UPDATE user SET nickname = %s, name = %s, image_url = %s WH
 check_user_exists_query = "SELECT COUNT(1) FROM user WHERE user_id = %s"
 
 
-gc = groupmeClient("backend/Auth-Text-Files/GroupmeAuth.txt")
+gc = groupmeClient()
 
 members = gc.get_group()["members"]
 

@@ -1,1 +1,4 @@
 /backend/Auth-Text-Files
+/backend/.env
+*.pyc
+__pycache__/

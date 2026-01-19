@@ -1,10 +1,15 @@
 import sys
 import time
+import os
 import mysql.connector
+from dotenv import load_dotenv
 from spotify_client import SpotifyClient
 from datetime import datetime, timezone
 from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def get_all_spotify_song_ids(mydb, start_date, end_date):
@@ -64,18 +69,21 @@ def create_spotify_playlist(sp, playlist_name, spotify_song_ids):
 
     # Loop to add each song one by one to playlist
     for song_id in spotify_song_ids:
-        add_song = sp.playlist_add_items(playlist["id"], [song_id])
-        if "error" in add_song:
-            time.sleep(10)
+        try:
             add_song = sp.playlist_add_items(playlist["id"], [song_id])
-        print("Added Song: " + song_id)
+            print("Added Song: " + song_id)
+            if "error" in add_song:
+                print("Error on Song: " + song_id)
+                time.sleep(10)
+                add_song = sp.playlist_add_items(playlist["id"], [song_id])
+        except:
+            print("Error on Song: " + song_id)
 
 
 def main(playlist_name, start_date, end_date):
 
     # Spotify/Spotipy Client
-    file_path = "backend/Auth-Text-Files/SpotifyAuth.txt"
-    spotify_client = SpotifyClient(file_path)
+    spotify_client = SpotifyClient()
     sp = Spotify(
         auth_manager=SpotifyOAuth(
             client_id=spotify_client.client_id,
@@ -87,10 +95,10 @@ def main(playlist_name, start_date, end_date):
 
     # Set up the connection to database
     mydb = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="n4LB6q9Xozu9XqdP8vPF",
-        database="groupme",
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
     )
 
     if mydb.is_connected():
