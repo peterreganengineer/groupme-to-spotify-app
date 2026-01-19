@@ -8,10 +8,10 @@ load_dotenv()
 
 # Set up the connection
 mydb = mysql.connector.connect(
-    host=os.getenv("DB_HOST"), 
-    user=os.getenv("DB_USER"), 
-    password=os.getenv("DB_PASSWORD"), 
-    database=os.getenv("DB_NAME")
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME"),
 )
 
 if mydb.is_connected():
@@ -49,7 +49,7 @@ for member in members:
                     member.get("image_url"),
                 ),
             )
-            print(f"Updated member: {member.get("nickname")}")
+            print(f"Updated member: {member.get('nickname')}")
         else:
             mycursor.execute(
                 add_user_query,
@@ -60,7 +60,7 @@ for member in members:
                     member.get("image_url"),
                 ),
             )
-            print(f"Inserted new member: {member.get("nickname")}")
+            print(f"Inserted new member: {member.get('nickname')}")
     except mysql.connector.Error as err:
         print(f"Error inserting member {member.get('nickname')}: {err}")
 

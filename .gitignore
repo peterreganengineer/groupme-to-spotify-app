@@ -2,3 +2,5 @@
 /backend/.env
 *.pyc
 __pycache__/
+.cache
+.cache-*
