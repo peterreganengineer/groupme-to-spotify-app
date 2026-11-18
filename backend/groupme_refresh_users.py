@@ -28,7 +28,12 @@ check_user_exists_query = "SELECT COUNT(1) FROM user WHERE user_id = %s"
 
 gc = groupmeClient()
 
-members = gc.get_group()["members"]
+group_data = gc.get_group()
+if "error" in group_data:
+    print(f"Error fetching group data: {group_data['error']}")
+    exit(1)
+
+members = group_data["members"]
 
 
 # Insert data into the database

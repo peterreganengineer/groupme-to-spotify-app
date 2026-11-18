@@ -1,6 +1,41 @@
-/backend/Auth-Text-Files
 /backend/.env
+/backend/Auth-Text-Files/
 *.pyc
-__pycache__/
+# Make sure you're on main
+git checkout main
+
+# Delete all local branches except main
+git branch -D $(git branch | grep -v 'main')
+
+# Delete all remote branches except main
+git push origin $(git branch -r | grep 'origin/' | sed 's|origin/||' | grep -v 'main\|HEAD' | tr '\n' ' ' | sed 's/ /:/' | sed 's/ / --delete origin\//g')# Make sure you're on main
+git checkout main
+
+# Delete all local branches except main
+git branch -D $(git branch | grep -v 'main')
+
+# Delete all remote branches except main
+git push origin $(git branch -r | grep 'origin/' | sed 's|origin/||' | grep -v 'main\|HEAD' | tr '\n' ' ' | sed 's/ /:/' | sed 's/ / --delete origin\//g')# Make sure you're on main
+git checkout main
+
+# Delete all local branches except main
+git branch -D $(git branch | grep -v 'main')
+
+# Delete all remote branches except main
+git push origin $(git branch -r | grep 'origin/' | sed 's|origin/||' | grep -v 'main\|HEAD' | tr '\n' ' ' | sed 's/ /:/' | sed 's/ / --delete origin\//g')# Make sure you're on main
+git checkout main
+
+# Delete all local branches except main
+git branch -D $(git branch | grep -v 'main')
+
+# Delete all remote branches except main
+git push origin $(git branch -r | grep 'origin/' | sed 's|origin/||' | grep -v 'main\|HEAD' | tr '\n' ' ' | sed 's/ /:/' | sed 's/ / --delete origin\//g')# Make sure you're on main
+git checkout main
+
+# Delete all local branches except main
+git branch -D $(git branch | grep -v 'main')
+
+# Delete all remote branches except main
+git push origin $(git branch -r | grep 'origin/' | sed 's|origin/||' | grep -v 'main\|HEAD' | tr '\n' ' ' | sed 's/ /:/' | sed 's/ / --delete origin\//g')backend/__pycache__/
 .cache
 .cache-*

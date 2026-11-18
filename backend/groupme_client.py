@@ -42,7 +42,7 @@ class groupmeClient:
         response = self.get_request(url, params)
 
         if "error" in response:
-            return response["error"]
+            return response
 
         return response["response"]["messages"]["count"]
 
@@ -60,7 +60,7 @@ class groupmeClient:
         response = self.get_request(url, params)
 
         if "error" in response:
-            return response["error"]
+            return response
 
         return response["response"]
 
@@ -94,7 +94,7 @@ class groupmeClient:
         response = self.get_request(url, params)
 
         if "error" in response:
-            return response["error"]
+            return response
 
         return response["response"]["messages"]
 

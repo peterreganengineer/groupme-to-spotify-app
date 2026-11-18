@@ -42,7 +42,7 @@ def get_all_spotify_song_ids(mydb, start_date, end_date):
 
     # Set so unique ids only to avoid dupes added to playlist
     spotify_song_urls = [song[0] for song in spotify_song_urls]
-    print(spotify_song_urls)
+    
     # Get songIds from spotify urls
     spotify_song_ids = []
     for url in spotify_song_urls:
